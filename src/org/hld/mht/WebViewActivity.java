@@ -40,6 +40,9 @@ public class WebViewActivity extends Activity {
 				webView.getSettings().setAllowFileAccessFromFileURLs(true);
 				webView.getSettings().setAllowUniversalAccessFromFileURLs(true);
 				webView.getSettings().setJavaScriptEnabled(true);
+				webView.getSettings().setBuiltInZoomControls(true);
+				webView.getSettings().setSupportZoom(true);
+				webView.getSettings().setUseWideViewPort(true);
 				webView.setWebChromeClient(new WebChromeClient() {
 					@Override
 					public void onProgressChanged(WebView view, int newProgress) {
@@ -59,10 +62,10 @@ public class WebViewActivity extends Activity {
 	
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		/*if(keyCode == KeyEvent.KEYCODE_BACK) {
+		if(keyCode == KeyEvent.KEYCODE_BACK) {
 			android.os.Process.killProcess(android.os.Process.myPid());
     		return true;
-    	}*/
+    	}
     	return super.onKeyDown(keyCode, event);
 	}
 	

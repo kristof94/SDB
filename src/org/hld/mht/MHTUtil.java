@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -16,10 +16,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.Map.Entry;
-
-import android.util.Log;
+import java.util.Scanner;
 
 
 public class MHTUtil {
@@ -28,23 +26,13 @@ public class MHTUtil {
 	static String extension[];
 
 	public static String exportHtml(String mhtPath, String exportDir) throws Exception {
-		extension = new String[8];
-		extension[0]=".jpg";
-		extension[1]=".png";
-		extension[2]=".gif";
-		extension[3]=".jpeg";
-		extension[4]=".js";
-		extension[5]=".json";
-		extension[6]=".ico";
-		extension[7]=".nomedia";
-
 		return new MHT().export(mhtPath, exportDir);
 	}
-	
+
 	public static String exportHtml(String mhtPath) throws Exception {
 		return exportHtml(mhtPath, new File(mhtPath).getParent());
 	}
-	
+
 	public static TransferEncoding checkTransferEncoding(String transferEncoding) {
 		if("base64".equalsIgnoreCase(transferEncoding)) return TransferEncoding.Base64;
 		else if("quoted-printable".equalsIgnoreCase(transferEncoding)) return TransferEncoding.QuotedPrintable;
@@ -85,7 +73,7 @@ public class MHTUtil {
 		out.close();
 		return out.toByteArray();
 	}
-	
+
 	public static byte[] decodeQ(byte[] bytes) throws IOException {
 		int len = bytes.length;
 		int length = 0;
@@ -114,7 +102,7 @@ public class MHTUtil {
 		System.arraycopy(bytes, 0, result, 0, length);
 		return result;
 	}
-	
+
 	public static String decodeQ(String str, String charsetName) throws IOException {
 		byte[] bs = str.getBytes();
 		int len = bs.length;
@@ -144,7 +132,7 @@ public class MHTUtil {
 	}
 
 	public static String entityName;
-	
+
 	private static class MHT {
 		private String boundary;
 		private String content;
@@ -156,9 +144,21 @@ public class MHTUtil {
 		private List<String> entityNameList = new ArrayList<String>();
 		private static final String NEWLINES = "\r\n";
 		private static final byte[] NEWLINES_BYTES = NEWLINES.getBytes();
-		
-		private MHT() {}
-		
+
+		private MHT() {
+			extension = new String[8];
+			extension[0]=".jpg";
+			extension[1]=".png";
+			extension[2]=".gif";
+			extension[3]=".jpeg";
+			extension[4]=".js";
+			extension[5]=".json";
+			extension[6]=".ico";
+			extension[7]=".nomedia";
+
+
+		}
+
 		private String export(String mhtPath, String exportDir) throws Exception {
 			File mht = new File(mhtPath);
 			//è§£æž�mhtå‰�å…ˆåˆ¤æ–­è¦�è¾“å‡ºçš„htmlæ–‡ä»¶æ˜¯å�¦å·²å­˜åœ¨
@@ -170,7 +170,7 @@ public class MHTUtil {
 			for(byte b:digest.digest((mht.getPath()+":"+mht.length()+":"+mht.lastModified()).getBytes())) {
 				sb.append(Integer.toHexString(0xFF & b));
 			}
-			System.out.println("export : "+fileName);
+			//System.out.println("export : "+fileName);
 			fileName += sb.toString();
 			if(exportDir==null) exportDir = "";
 			if(exportDir.length()>0 && !exportDir.equals(File.separatorChar)) exportDir+=File.separatorChar;
@@ -182,9 +182,6 @@ public class MHTUtil {
 			}
 			exportDir = exportDir+fileName+File.separatorChar;
 			dir = new File(exportDir);
-			System.out.println("export : "+dir.getAbsolutePath());
-
-			//å¼€å§‹è§£æž�mhtæ–‡ä»¶
 			BufferedReader in = null;
 			try {
 				in = new BufferedReader(new FileReader(mht));
@@ -207,7 +204,6 @@ public class MHTUtil {
 						break;
 					}
 				}
-				//è§£æž�å�„ä¸ªå†…å®¹
 				splitEntity(in, boundary);
 			} finally {
 				if(in!=null) try {
@@ -219,14 +215,12 @@ public class MHTUtil {
 			if(content==null) {
 				throw new Exception("mht format error");
 			}
-			//å¤„ç�†htmlå†…å®¹
 			Iterator<Entry<String, String>> iterator = replaceMap.entrySet().iterator();
 			while(iterator.hasNext()) {
 				Entry<String, String> entry = iterator.next();
 				content = content.replace(entry.getKey(), entry.getValue());
 			}
 			content = content.replaceAll("<base\\s+href\\s*=\\s*\".*\".*((/>)|(</base>))", "");
-	
 			if(url!=null) content = content.replace(url, file.getName());
 
 			BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file));
@@ -234,7 +228,7 @@ public class MHTUtil {
 			out.close();
 			return file.getAbsolutePath();
 		}
-		
+
 		private void splitEntity(BufferedReader in, String boundary) throws Exception {
 			if(boundary==null) return;
 			lastReadTempString = in.readLine();
@@ -251,9 +245,9 @@ public class MHTUtil {
 				}
 			}
 		}
-		
+
 		private void addEntity(BufferedReader in, String boundary) throws Exception {
-			//System.out.println("boundary "+boundary);
+
 			Entity entity = new Entity();
 			while((lastReadTempString = in.readLine())!=null) {
 				if(entity.type==null && lastReadTempString.startsWith("Content-Type: ")) {
@@ -338,11 +332,9 @@ public class MHTUtil {
 				entityName = entityName.toLowerCase();
 				while(entityNameList.contains(entityName)) {
 					entityName = entityName+"_"+System.nanoTime();
-					//System.out.println("export2 : "+entityName);
 				}
 				File entityFile = new File(dir, entityName);
-				//System.out.println("test "+entityFile);
-				//System.out.println("test "+entityName);
+
 
 				BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(entityFile));
 				readEntity(in, out, transferEncoding, boundary);
@@ -351,62 +343,66 @@ public class MHTUtil {
 					;
 				else
 					{
-						System.out.println("test "+entityFile.getName());
+						//System.out.println("test "+entityFile.getName());
 						write(entityFile);
 					}
-
+				 
 			}
-			
-			//Log.d("SDB",dir.getName());
-
-
-			
-			//content.replaceAll("", "");
 		}
-		
+
 		private void write(File f) throws IOException
 		{
-			String line="";
-			String content="";
-			Scanner sc = new Scanner(f);
-			while (sc.hasNextLine()) {
-				line = sc.nextLine();
-				content = content + line;				
-			}
+	        byte[] bFile = new byte[(int) f.length()];
+	    	FileInputStream fileInputStream=null;
+	    	fileInputStream = new FileInputStream(f);
+		    fileInputStream.read(bFile);
+		    fileInputStream.close();
+		    String c = new String(bFile,"UTF-8");
+			//System.out.println(c);
+		    c = c.replaceAll("genImages", dir.getName());
+		    c = c.replaceAll("hal/imagesirot", dir.getName());
+		    c = c.replaceAll("../hal/images", dir.getName());
+		    c = c.replaceAll("hal", dir.getName());
+
+			BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(f));
+			out.write(c.getBytes("UTF-8"));
+			out.close();
 			
-			if(content.contains("genImages"))
-				{
-					content = content.replaceAll("genImages",dir.getName() );
-					 BufferedWriter output = new BufferedWriter(new FileWriter(f));
-			         output.write(content);
-			         output.close();
-				}
+
+		    
 		}
-		
-		
-		
+
 		private void readEntity(BufferedReader in, OutputStream out, TransferEncoding transferEncoding, String boundary) throws IOException {
+
+			//System.out.println("readEntity");
+			byte[] b =null;
+			String c="";
+
 			while((lastReadTempString=in.readLine())!=null) {
-				
+
 				if(lastReadTempString.startsWith(boundary, 2)) break;
 				switch(transferEncoding) {
 				case Base64:
-					out.write(decodeB(lastReadTempString.getBytes()));
+					b = decodeB(lastReadTempString.getBytes());
+					out.write(b);
 					break;
 				case QuotedPrintable:
-					out.write(decodeQ(lastReadTempString.getBytes()));
-					if(!lastReadTempString.endsWith("=")) out.write(NEWLINES_BYTES);
+					b = decodeQ(lastReadTempString.getBytes());
+					out.write(b);
+					if(!lastReadTempString.endsWith("=")){
+						out.write(NEWLINES_BYTES);
+					}
 					break;
 				default:
-					out.write(lastReadTempString.getBytes());
+					b=lastReadTempString.getBytes();
+					out.write(b);
 					out.write(NEWLINES_BYTES);
 					break;
-				}
+				}				
 			}
-			// System.out.println("reqdEntity "+ lastReadTempString);
 			out.close();
 		}
-		
+
 		private class Entity {
 			private String type;
 			private String charset;

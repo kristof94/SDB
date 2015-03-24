@@ -15,7 +15,7 @@ import android.webkit.WebView;
 import com.example.sdb.R;
 
 public class WebViewActivity extends Activity {
-	WebView webView;
+	WebView webView ;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -23,8 +23,8 @@ public class WebViewActivity extends Activity {
 		requestWindowFeature(Window.FEATURE_PROGRESS);
 		setContentView(R.layout.web);
 		webView = (WebView)findViewById(R.id.WebView);
-		webView.getSettings().setBuiltInZoomControls(true);
-		//webView.getSettings().setLoadsImagesAutomatically(true);
+
+		//
 		
 
 		Intent intent = getIntent();
@@ -40,9 +40,15 @@ public class WebViewActivity extends Activity {
 				webView.getSettings().setAllowFileAccessFromFileURLs(true);
 				webView.getSettings().setAllowUniversalAccessFromFileURLs(true);
 				webView.getSettings().setJavaScriptEnabled(true);
-				webView.getSettings().setBuiltInZoomControls(true);
-				webView.getSettings().setSupportZoom(true);
+				webView.getSettings().setLoadsImagesAutomatically(true);
+				//active le zoom
+			    webView.getSettings().setBuiltInZoomControls(true);
+			    webView.getSettings().setDisplayZoomControls(false);
+				
+			    //
+				webView.getSettings().setLoadWithOverviewMode(true);
 				webView.getSettings().setUseWideViewPort(true);
+				webView.setInitialScale(100);
 				webView.setWebChromeClient(new WebChromeClient() {
 					@Override
 					public void onProgressChanged(WebView view, int newProgress) {

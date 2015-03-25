@@ -145,7 +145,7 @@ public class MainActivity extends Activity {
 		File folder = new File(this.getFilesDir().getAbsolutePath()+"/"+name.replace(".mht", ""));
 		File Index_HTML = new File(folder.getAbsolutePath()+"/"+"index.html");
 
-		/*if(folder.exists())
+		if(folder.exists())
 		{
 			Log.d("SDB","Folder "+folder.getAbsolutePath()+" already created");
 
@@ -162,14 +162,14 @@ public class MainActivity extends Activity {
 			}
 		}
 		else
-		{*/
+		{
 			Log.d("SDB","Folder "+p+" not created.");
 			folder.mkdir();
 			Log.d("SDB","Folder "+p+" created");
 			Extract_MHT o =new Extract_MHT(new File(p+name),folder.getAbsolutePath()+"/",this);
 			this.add_button(folder.getAbsolutePath()+"/",name);
 			o.execute();
-		//}
+		}
 
 	}
 

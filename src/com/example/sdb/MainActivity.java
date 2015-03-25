@@ -2,9 +2,7 @@ package com.example.sdb;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import javax.mail.MessagingException;
 
@@ -30,30 +28,62 @@ public class MainActivity extends Activity {
 
 	private static final int CHOOSE_FILE_REQUESTCODE = 1;
 	LinearLayout layout;
-	List<String> PATH;
-	List<File> dossier;
+	//List<String> PATH,NAME;
 	String state;
 	static File Index;
 	private boolean isShow;
-
+	//File file;
+	//	FileOutputStream outputStream;
+	//FileInputStream fin ;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
-		layout = (LinearLayout) findViewById(R.id.ll);
-		PATH = new ArrayList<String>();
-		dossier = new ArrayList<File>();
-		String state = Environment.getExternalStorageState();
-		if(!Environment.MEDIA_MOUNTED.equals(state)) {
-			if(Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-				Log.d("SDB", "yes");
-			} else {
-				Log.d("SDB", "no");
+		//PATH = new ArrayList<String>();
+		//NAME = new ArrayList<String>();
+
+		/*file = new File(this.getFilesDir(), "PATH");
+		try {
+			fin = openFileInput("PATH");
+			BufferedReader br = new BufferedReader(new InputStreamReader(fin));
+			String line = null;
+			List<String> spl= new ArrayList<String>();
+			int y =0;
+			while ((line = br.readLine()) != null) {
+				spl.add(line);
+				if(y!=0)
+					{
+						this.add_button(spl.get(y-1), spl.get(y));
+						//System.out.println(PATH.get(y-1));
+					}
+				y++;
+
 			}
 
-		} else {
-			;
+
+
+
+			fin.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		 */
+		setContentView(R.layout.activity_main);
+		layout = (LinearLayout) findViewById(R.id.ll);
+		String state = Environment.getExternalStorageState();
+		//if(!Environment.MEDIA_MOUNTED.equals(state)) {
+		if(Environment.MEDIA_MOUNTED.equals(state)) {
+			Log.d("SDB", "yes");
+		} else {
+			Log.d("SDB", "no");
+		}
+
+		//} else {
+		//;
+		//}
 	}
 
 	@Override
@@ -74,32 +104,33 @@ public class MainActivity extends Activity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
+	
+	private void add_button(String PAT,final String name)
+	{
+		final String P= PAT;
+		Button b = new Button(this);
+		b.setText(name.replace(".mht",""));
+		b.setOnClickListener(new OnClickListener(){
 
+			@Override
+			public void onClick(View v) {
+				open_mht(P,name);
+			}
+
+		});
+
+		layout.addView(b);
+	}
+	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch(requestCode){
 		case CHOOSE_FILE_REQUESTCODE :
 			if(resultCode==RESULT_OK){
-				final String FilePath = data.getData().getLastPathSegment();
-				final String FILEPath = data.getData().getPath();
-				final String name = FilePath;
+				final String name = data.getData().getLastPathSegment();
+				final String FILEPath = data.getData().getPath().replace(name, "");
 
-				if(this.add_path(FilePath))
-				{
-					Button b = new Button(this);
-					b.setText(name.replace(".mht",""));
-					b.setOnClickListener(new OnClickListener(){
-
-						@Override
-						public void onClick(View v) {
-							open_mht(FILEPath.replace(FilePath, ""),name);
-						}
-
-					});
-
-					layout.addView(b);
-				}
-				open_mht(FILEPath.replace(FilePath, ""),name);
+				open_mht(FILEPath,name);
 
 			}
 			break;
@@ -109,41 +140,43 @@ public class MainActivity extends Activity {
 	}
 
 	private void open_mht(String p,String name) {
-
-		p=p.replace(".mht", "");
-		String pp=(p+name+"/").replace(".mht", "");
-		Log.d("SDB",pp);
 		Log.d("SDB",p);
 		Log.d("SDB",name);
-		File folder = new File(pp);
-		File Index_HTML = new File(pp+"index.html");
+		File folder = new File(this.getFilesDir().getAbsolutePath()+"/"+name.replace(".mht", ""));
+		File Index_HTML = new File(folder.getAbsolutePath()+"/"+"index.html");
 
-		if(folder.exists())
+		/*if(folder.exists())
 		{
-			Log.d("SDB","Folder "+pp+" already created");
+			Log.d("SDB","Folder "+folder.getAbsolutePath()+" already created");
 
 			if(Index_HTML.exists())
 			{
-				Log.d("SDB","Index.HTML "+ Index_HTML.getAbsolutePath()+" already created");
+				Log.d("SDB","Index.HTML "+ Index_HTML.getAbsolutePath()+" already unziped");
 				MainActivity.showHtml(this, Index_HTML.getAbsolutePath());
+			}
+			else
+			{
+				Extract_MHT o =new Extract_MHT(new File(p+name),folder.getAbsolutePath()+"/",this);
+				this.add_button(folder.getAbsolutePath()+"/",name);
+				o.execute();
 			}
 		}
 		else
-		{
-			Log.d("SDB","Folder "+pp+" not created.");
+		{*/
+			Log.d("SDB","Folder "+p+" not created.");
 			folder.mkdir();
-			Log.d("SDB","Folder "+pp+" created");
-			Extract_MHT o =new Extract_MHT(new File(p+name), pp,this);
+			Log.d("SDB","Folder "+p+" created");
+			Extract_MHT o =new Extract_MHT(new File(p+name),folder.getAbsolutePath()+"/",this);
+			this.add_button(folder.getAbsolutePath()+"/",name);
 			o.execute();
+		//}
 
-
-		}
 	}
 
 	public void OpenFileExplorer(View v)
 	{
 		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-		intent.setType("file/*");
+		intent.setType("file/mht");
 		startActivityForResult(intent, CHOOSE_FILE_REQUESTCODE); 
 	}
 
@@ -156,36 +189,47 @@ public class MainActivity extends Activity {
 		return false;
 	}
 
-	public boolean add_path(String p)
-	{
-		if(PATH.isEmpty())
-		{
-			PATH.add(p);
-			return true;
-		}
-		else
-		{
-			if(PATH.contains(p))
-				return false;
-			else{
-				PATH.add(p);
-				return true;
-			}
-		}
-	}
-
 	@Override
 	protected void onResume() {
 		super.onResume();
 		isShow = true;
+
 		Log.d("SDB", "onResume");
 
 	}
 
 	@Override
 	protected void onStop() {
+
+		/*if(!PATH.isEmpty())
+			{
+				try {
+					outputStream = openFileOutput("PATH", this.MODE_PRIVATE);
+					String data;
+					for(int i = 0;i<PATH.size();i++)
+					{
+						data = PATH.get(i)+System.getProperty("line-separator")+NAME.get(i)+System.getProperty("line-separator");
+						Log.d("SDB", data);
+						outputStream.write(data.getBytes());
+
+					}
+					Log.d("SDB", file.getAbsolutePath());
+					outputStream.close();
+
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}*/
+
+
 		super.onStop();
 		isShow = false;
+
 		Log.d("SDB", "onStop");
 
 	}
@@ -212,7 +256,7 @@ public class MainActivity extends Activity {
 		activity.startActivity(createShowHtmlIntent(activity, filePath));
 	}
 
-	private class Extract_MHT extends AsyncTask<Void, Void, String>{
+	public class Extract_MHT extends AsyncTask<Void, Void, String>{
 
 		Collection<Attachment> at;
 		File MHT;
@@ -232,13 +276,15 @@ public class MainActivity extends Activity {
 
 		@Override
 		protected void onPreExecute() {
-
 			setContentView(R.layout.loading);
+			Log.d("SDB","set loading");
+
 		}
 
 		@Override
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
+			setContentView(R.layout.activity_main);
 			MainActivity.showHtml(aa, Index.getAbsolutePath());
 		}
 

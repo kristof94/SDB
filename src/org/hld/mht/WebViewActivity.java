@@ -31,7 +31,7 @@ public class WebViewActivity extends Activity {
 		if(intent==null) {
 			showMessage("test");
 		} else {
-			String path = intent.getExtras().getString("path");
+			final String path = intent.getExtras().getString("path");
 			if(path==null) {
 				showMessage("test2");
 			} else if(!new File(path).isFile()) {
@@ -41,14 +41,15 @@ public class WebViewActivity extends Activity {
 				webView.getSettings().setAllowUniversalAccessFromFileURLs(true);
 				webView.getSettings().setJavaScriptEnabled(true);
 				webView.getSettings().setLoadsImagesAutomatically(true);
+				
 				//active le zoom
 			    webView.getSettings().setBuiltInZoomControls(true);
 			    webView.getSettings().setDisplayZoomControls(false);
+			    webView.getSettings().setUseWideViewPort(true);
+			    webView.setInitialScale(1);
+			    webView.getSettings().setLoadWithOverviewMode(true);
+
 				
-			    //
-				webView.getSettings().setLoadWithOverviewMode(true);
-				webView.getSettings().setUseWideViewPort(true);
-				webView.setInitialScale(100);
 				webView.setWebChromeClient(new WebChromeClient() {
 					@Override
 					public void onProgressChanged(WebView view, int newProgress) {
@@ -57,6 +58,10 @@ public class WebViewActivity extends Activity {
 					@Override
 					public void onReceivedTitle(WebView view, String title) {
 						WebViewActivity.this.setTitle(title);
+					}
+					@Override
+					public void onRequestFocus(WebView view) {
+						super.onRequestFocus(view);
 					}
 				});
 				webView.loadUrl("file://"+Uri.encode(path, "/\\"));

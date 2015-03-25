@@ -20,11 +20,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.hankenindustries.mht.Attachment;
 import com.hankenindustries.mht.MHTUnpack;
@@ -138,7 +135,7 @@ public class MainActivity extends Activity {
 			Log.d("SDB","Folder "+pp+" created");
 			Extract_MHT o =new Extract_MHT(new File(p+name), pp,this);
 			o.execute();
-			
+
 
 		}
 	}
@@ -221,9 +218,7 @@ public class MainActivity extends Activity {
 		File MHT;
 		String path;
 		Activity aa;
-		int duration;
-		ProgressBar b;
-		
+
 		public Extract_MHT(File mht,String Path,Activity a) {
 
 			aa=a;
@@ -239,7 +234,6 @@ public class MainActivity extends Activity {
 		protected void onPreExecute() {
 
 			setContentView(R.layout.loading);
-			b =(ProgressBar) findViewById(R.id.progress_bar);
 		}
 
 		@Override
@@ -295,7 +289,7 @@ public class MainActivity extends Activity {
 					try {
 						a.saveFile(Index);
 						System.out.println(Index.getAbsolutePath());
-						System.out.println("Terminé");
+						System.out.println("Terminï¿½");
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();

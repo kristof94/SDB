@@ -13,6 +13,8 @@ import org.hld.mht.WebViewActivity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -20,14 +22,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 public class MainActivity extends Activity {
 
 	private static final int CHOOSE_FILE_REQUESTCODE = 1;
 	LinearLayout layout;
-	List<String> PATH,NAME;
+	List<String> PATH,NAME,PATH_PICT;
 	String state;
 	static File Index;
 	private boolean isShow;
@@ -51,32 +53,58 @@ public class MainActivity extends Activity {
 		}
 		PATH = new ArrayList<String>();
 		NAME = new ArrayList<String>();
+		PATH_PICT = new ArrayList<String>();
 		FOLDER = this.getFilesDir().getAbsolutePath();
 		String line = null,l2[];
-
-
 		try {
 			fin = openFileInput("PATH");
 			BufferedReader br = new BufferedReader(new InputStreamReader(fin));
-			fin = openFileInput("PATH");
 			while ((line = br.readLine()) != null) {
 				l2 = line.split("-");
 				PATH.add(l2[0]);
 				NAME.add(l2[1]);
+				PATH_PICT.add(l2[0]+"pict.jpeg");
+				System.out.println(l2[0]+"pict.jpeg");
 				System.out.println(l2[0]);
 				System.out.println(l2[1]);
 				this.add_button(l2[0], l2[1]);
 			}
 			fin.close();
 
-
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			System.out.println("READ PROBLEM");
 			e.printStackTrace();
 		}
-
+		System.out.println("READ3");
 	}
 
+	public void read()
+	{
+		System.out.println("READ");
+		String line = null,l2[];
+		try {
+			fin = openFileInput("PATH");
+			BufferedReader br = new BufferedReader(new InputStreamReader(fin));
+			while ((line = br.readLine()) != null) {
+				l2 = line.split("-");
+				PATH.add(l2[0]);
+				NAME.add(l2[1]);
+				PATH_PICT.add(l2[0]+"pict.jpeg");
+				System.out.println(l2[0]+"pict.jpeg");
+				System.out.println(l2[0]);
+				System.out.println(l2[1]);
+				this.add_button(l2[0], l2[1]);
+			}
+			fin.close();
+
+		} catch (IOException e) {
+			System.out.println("READ PROBLEM");
+			e.printStackTrace();
+		}
+		System.out.println("READ3");
+
+	}
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -96,17 +124,22 @@ public class MainActivity extends Activity {
 		return super.onOptionsItemSelected(item);
 	}
 
-	private void add_button(String PAT,final String name)
+	 public void add_button(String PAT,final String name)
 	{
 		final String P= PAT;
-		Button b = new Button(this);
+		ImageView b = new ImageView(this);
 
 		if(!PATH.contains(PAT))
 			PATH.add(PAT);
 		if(!NAME.contains(name))			
 			NAME.add(name);
 
-		b.setText(name.replace(".mht",""));
+		//b.setText(name.replace(".mht",""));
+		String pathName = P+"pict.jpeg";
+		Log.d("SDB",pathName);
+		Bitmap bmp = BitmapFactory.decodeFile(pathName);
+		b.setImageBitmap(bmp);
+
 		b.setOnClickListener(new OnClickListener(){
 
 			@Override
@@ -168,12 +201,12 @@ public class MainActivity extends Activity {
 			folder.mkdir();
 			Log.d("SDB","Folder "+p+" created");
 			//Extract_MHT o =new Extract_MHT(new File(p+name),folder.getAbsolutePath()+"/",this);
-
-			this.add_button(folder.getAbsolutePath()+"/",name);
+			//this.add_button(folder.getAbsolutePath()+"/",name);
 			i.putExtra("file",p+name );
 			i.putExtra("folder",folder.getAbsolutePath()+"/");
 			//this.add_button(folder.getAbsolutePath()+"/",name);
 			startActivity(i);
+
 			//			o.execute();
 		}
 
@@ -199,9 +232,8 @@ public class MainActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 		isShow = true;
-
 		Log.d("SDB", "onResume");
-
+		read();
 	}
 
 	@Override
@@ -214,6 +246,7 @@ public class MainActivity extends Activity {
 			for(int i =0;i<PATH.size();i++)
 			{
 				chemin = PATH.get(i)+"-"+NAME.get(i)+System.getProperty("line.separator");
+				Log.d("SDB",chemin);
 				outputStream.write(chemin.getBytes());
 			}
 			outputStream.close();
@@ -253,6 +286,5 @@ public class MainActivity extends Activity {
 	public static void showHtml(Activity activity, String filePath) {
 		activity.startActivity(createShowHtmlIntent(activity, filePath));
 	}
-
 
 }

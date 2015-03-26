@@ -1,5 +1,6 @@
 package org.hld.mht;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -8,7 +9,9 @@ import java.io.IOException;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
+import android.graphics.Picture;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -63,12 +66,16 @@ public class WebViewActivity extends Activity {
 
 					@Override
 					public void onPageFinished(WebView view, String url) {
-						
-								WebViewActivity.this.setTitle("TDB");
-								
+						try {
+							take_snap();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+
 						super.onPageFinished(view, url);
 					}
-					
+
 				});
 				webView.loadUrl("file://"+Uri.encode(path, "/\\"));
 				Log.d("SSDB","file://"+Uri.encode(path, "/\\") );
@@ -107,8 +114,48 @@ public class WebViewActivity extends Activity {
 		return b;
 	}
 
-	public void take_snap(Bitmap bmp) throws IOException
+	public void take_snap() throws IOException
 	{
+		String F ="/sdcard/Download/pict.png";//path.replace("index.html", "pict.png");
+
+		Log.d("SSDB","1 "+path );
+		Log.d("SSDB","2 "+F );
+
+		Bitmap mBitmap          = null;
+		ByteArrayOutputStream mByteArrayOpStream        = null;
+
+		//get the picture from the webview
+		Picture picture = webView.capturePicture();
+
+		//Create the new Canvas
+
+
+		mBitmap = Bitmap.createBitmap(webView.getWidth(), webView.getHeight
+				(),Config.ARGB_8888);
+		//mCanvas.drawBitmap(mBitmap, 0, 0, null);
+
+		if(mBitmap!= null) {
+			mByteArrayOpStream = new ByteArrayOutputStream();
+			mBitmap.compress(Bitmap.CompressFormat.PNG, 90, mByteArrayOpStream);
+			try {
+				FileOutputStream fos = new FileOutputStream(F);
+				fos.write(mByteArrayOpStream.toByteArray());
+				fos.close();
+				save_file(F);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+
+
+
+
+		// return bmp;  
+
+		/*Bitmap bmp
 		File f = new File("/sdcard/Download/"+"pict.png");
 		f.createNewFile();
 		FileOutputStream fOut;
@@ -123,14 +170,14 @@ public class WebViewActivity extends Activity {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 	}
 
-	public void save_file(){
-		String str = folder+"/"+"pict.png";
+	public void save_file(String F){
+		String str = F;
 
 		try {
-			FileOutputStream outputStream = openFileOutput("PATH", this.MODE_PRIVATE);
+			FileOutputStream outputStream = openFileOutput("PATH_PICT", this.MODE_PRIVATE);
 
 			outputStream.write(str.getBytes());
 

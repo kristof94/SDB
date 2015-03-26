@@ -24,6 +24,7 @@
             </intent-filter>
         </activity>
         <activity android:name="org.hld.mht.WebViewActivity"></activity>
+        <activity android:name="Loading"></activity>
     </application>
 
 </manifest>
